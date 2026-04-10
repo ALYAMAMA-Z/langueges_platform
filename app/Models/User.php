@@ -80,5 +80,12 @@ public function completedLessons()
         ->withPivot('completed_at');
 }
 
+public function dailyWords(): BelongsToMany
+{
+    return $this->belongsToMany(DailyWord::class, 'daily_word_user')
+        ->withPivot('sent_at')
+        ->withTimestamps();
+}
+
 
 }

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="{{ LaravelLocalization::getCurrentLocale() }}" dir="{{ LaravelLocalization::getCurrentLocale() == 'ar' ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>منصة تعلم اللغات - @yield('title')</title>
+    <title>@yield('title') - {{ config('app.name') }}</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -69,8 +69,8 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="{{ url('/') }}">
-                <i class="fas fa-language"></i> منصة تعلم اللغات
+            <a class="navbar-brand" href="{{ LaravelLocalization::getLocalizedURL(LaravelLocalization::getCurrentLocale(), route('welcome')) }}">
+                <i class="fas fa-language"></i> {{ __('messages.app_name') }}
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -78,43 +78,63 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('courses.index') }}">
-                            <i class="fas fa-book"></i> الكورسات
+                        <a class="nav-link" href="{{ LaravelLocalization::getLocalizedURL(LaravelLocalization::getCurrentLocale(), route('courses.index')) }}">
+                            <i class="fas fa-book"></i> {{ __('messages.courses') }}
                         </a>
-
                     </li>
-                   
-                </ul> 
-               
-                   
-              
-              
+                    @auth
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ LaravelLocalization::getLocalizedURL(LaravelLocalization::getCurrentLocale(), route('placement-test.index')) }}">
+                            <i class="fas fa-chart-line"></i> {{ __('messages.placement_test') }}
+                        </a>
+                    </li>
+                    @endauth
+                </ul>
+                
+                <!-- Language Switcher -->
+                <ul class="navbar-nav me-2">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-globe"></i> 
+                            {{ LaravelLocalization::getCurrentLocale() == 'ar' ? 'العربية' : 'English' }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
+                                <li>
+                                    <a class="dropdown-item" rel="alternate" hreflang="{{ $localeCode }}" href="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}">
+                                        {{ $properties['native'] }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </li>
+                </ul>
+                
                 <ul class="navbar-nav">
-                    @auth 
-                    
-                    
-                    <li style="color: #f5f7fb"><a class="dropdown-item" href="{{ route('placement-test.index') }} ">
-                     <i class="fas fa-chart-line"></i> تحديد المستوى
-                    </a>
-                      </li>
-                      <li style="color: #f5f7fb"><a class="dropdown-item" href="{{ route('enrollments.my-courses') }}">
-                              <i class="fas fa-graduation-cap"></i> كورساتي
-                            </a>
-                        </li>
-                   
+                    @auth
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-user"></i> {{ Auth::user()->name }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-chart-line"></i> تقدمي</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-certificate"></i> شهاداتي</a></li>
+                                <li><a class="dropdown-item" href="{{ route('enrollments.my-courses') }}">
+                                    <i class="fas fa-graduation-cap"></i> {{ __('messages.my_courses') }}
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ route('certificates.index') }}">
+                                    <i class="fas fa-certificate"></i> {{ __('messages.my_certificates') }}
+                                </a></li>
                                 <li><hr class="dropdown-divider"></li>
+                                @if(auth()->user()->isAdmin())
+                                    <li><a class="dropdown-item" href="{{ route('admin.daily-words.index') }}">
+                                        <i class="fas fa-calendar-day"></i> {{ __('messages.manage_daily_words') }}
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                @endif
                                 <li>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
                                         <button type="submit" class="dropdown-item">
-                                            <i class="fas fa-sign-out-alt"></i> تسجيل خروج
+                                            <i class="fas fa-sign-out-alt"></i> {{ __('messages.logout') }}
                                         </button>
                                     </form>
                                 </li>
@@ -123,12 +143,12 @@
                     @else
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('login') }}">
-                                <i class="fas fa-sign-in-alt"></i> تسجيل دخول
+                                <i class="fas fa-sign-in-alt"></i> {{ __('messages.login') }}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('register') }}">
-                                <i class="fas fa-user-plus"></i> حساب جديد
+                                <i class="fas fa-user-plus"></i> {{ __('messages.register') }}
                             </a>
                         </li>
                     @endauth
@@ -155,6 +175,13 @@
                 </div>
             @endif
 
+            @if(session('info'))
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <i class="fas fa-info-circle"></i> {{ session('info') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+
             @yield('content')
         </div>
     </main>
@@ -162,7 +189,7 @@
     <!-- Footer -->
     <footer>
         <div class="container text-center">
-            <p class="mb-0">© {{ date('Y') }} منصة تعلم اللغات. جميع الحقوق محفوظة</p>
+            <p class="mb-0">© {{ date('Y') }} {{ __('messages.app_name') }}. {{ __('messages.all_rights_reserved') }}</p>
         </div>
     </footer>
 

@@ -202,4 +202,12 @@ class EnrollmentService
             ->pluck('lesson_id')
             ->toArray();
     }
+
+    /**
+ * جلب تسجيل معين بواسطة ID
+ */
+public function getEnrollmentById(int $enrollmentId): Enrollment
+{
+    return Enrollment::with('course')->findOrFail($enrollmentId);
+}
 }
