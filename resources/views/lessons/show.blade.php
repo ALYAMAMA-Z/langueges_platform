@@ -32,12 +32,68 @@
             </div>
             
             <div class="card-body">
+                <!-- قسم الدرس المباشر (يظهر أولاً) -->
+             @if($lesson->is_live)
+    <div class="card mb-4">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-broadcast-tower"></i> {{ __('messages.live_lesson') }}
+            </h5>
+        </div>
+        <div class="card-body text-center">
+            @php
+                $status = $lesson->getLiveStatusAttribute();
+            @endphp
+            
+            @if($status == 'live_now')
+                <div class="alert alert-danger">
+                    <i class="fas fa-circle text-danger me-2" style="font-size: 12px; animation: pulse 1s infinite;"></i>
+                    <strong>{{ __('messages.live_now') }}</strong>
+                </div>
+                <a href="{{ $lesson->live_join_url }}" class="btn btn-danger btn-lg" target="_blank">
+                    <i class="fas fa-video"></i> {{ __('messages.join_live_lesson') }}
+                </a>
+            @elseif($status == 'upcoming')
+                <div class="alert alert-info">
+                    <i class="fas fa-calendar-alt me-2"></i>
+                    <strong>{{ __('messages.live_upcoming') }}</strong>
+                    @if($lesson->live_start_time)
+                        <br>{{ __('messages.live_start_at') }}: {{ $lesson->live_start_time->format('Y-m-d H:i') }}
+                    @endif
+                </div>
+                <button class="btn btn-secondary btn-lg" disabled>
+                    <i class="fas fa-clock"></i> {{ __('messages.waiting_for_start') }}
+                </button>
+            @else
+                <div class="alert alert-secondary">
+                    <i class="fas fa-archive me-2"></i>
+                    {{ __('messages.live_ended') }}
+                </div>
+            @endif
+            
+            <div class="mt-3">
+                <small class="text-muted">
+                    {{ __('messages.live_platform_label') }}: {{ ucfirst($lesson->live_platform) }}
+                </small>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+    </style>
+@endif
+                
+                <!-- الفيديو المسجل -->
                 @if($lesson->video_url)
                     <div class="mb-4">
                         <h5><i class="fas fa-video"></i> {{ __('messages.video_lesson') }}:</h5>
                         <div class="ratio ratio-16x9">
                             @php
-                                // تحويل رابط YouTube إلى رابط embed
                                 $videoUrl = $lesson->video_url;
                                 if (strpos($videoUrl, 'youtube.com/watch?v=') !== false) {
                                     $videoId = substr($videoUrl, strpos($videoUrl, 'v=') + 2);
@@ -55,6 +111,7 @@
                     </div>
                 @endif
                 
+                <!-- ملفات الدرس -->
                 @if($lesson->file_url)
                     <div class="mb-4">
                         <h5><i class="fas fa-paperclip"></i> {{ __('messages.lesson_files') }}:</h5>
@@ -64,12 +121,14 @@
                     </div>
                 @endif
                 
+                <!-- رسالة الدرس المجاني -->
                 @if($lesson->is_free_lesson)
                     <div class="alert alert-success">
                         <i class="fas fa-gift"></i> {{ __('messages.free_lesson_message') }}
                     </div>
                 @endif
                 
+                <!-- أزرار الأدمن -->
                 @if(auth()->user() && auth()->user()->isAdmin())
                     <hr>
                     <div class="text-end">
@@ -79,6 +138,7 @@
                     </div>
                 @endif
 
+                <!-- زر إكمال الدرس للطلاب -->
                 @if(auth()->user() && !auth()->user()->isAdmin() && !$lesson->is_free_lesson)
                     <hr>
                     <div class="text-center">

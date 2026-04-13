@@ -15,11 +15,16 @@ class LessonUpdateRequest extends FormRequest
     {
         return [
             'title_en' => 'sometimes|string|max:255',
-            'title_ar' => 'sometimes|string|max:255',
-            'video_url' => 'nullable|url',
-            'file_url' => 'nullable|url',
-            'order' => 'nullable|integer|min:0',
-            'is_free_lesson' => 'nullable|boolean',
+        'title_ar' => 'sometimes|string|max:255',
+        'video_url' => 'nullable|url',
+        'file_url' => 'nullable|url',
+        'order' => 'nullable|integer|min:0',
+        'is_free_lesson' => 'nullable|boolean',
+        'is_live' => 'nullable|boolean',
+        'live_platform' => 'nullable|string|in:zoom,google_meet,youtube_live,other',
+        'live_join_url' => 'nullable|url',
+        'live_start_time' => 'nullable|date',
+        'live_duration' => 'nullable|integer|min:1',
         ];
     }
 

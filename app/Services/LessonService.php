@@ -35,13 +35,18 @@ class LessonService
     {
         return DB::transaction(function () use ($data) {
             $lesson = Lesson::create([
-                'course_id' => $data['course_id'],
-                'title_en' => $data['title_en'],
-                'title_ar' => $data['title_ar'],
-                'video_url' => $data['video_url'] ?? null,
-                'file_url' => $data['file_url'] ?? null,
-                'order' => $data['order'] ?? 0,
-                'is_free_lesson' => $data['is_free_lesson'] ?? false,
+            'course_id' => $data['course_id'],
+            'title_en' => $data['title_en'],
+            'title_ar' => $data['title_ar'],
+            'video_url' => $data['video_url'] ?? null,
+            'file_url' => $data['file_url'] ?? null,
+            'order' => $data['order'] ?? 0,
+            'is_free_lesson' => $data['is_free_lesson'] ?? false,
+            'is_live' => $data['is_live'] ?? false,  // ✅ أضيفي هذا
+            'live_platform' => $data['live_platform'] ?? null,
+            'live_join_url' => $data['live_join_url'] ?? null,
+            'live_start_time' => $data['live_start_time'] ?? null,
+            'live_duration' => $data['live_duration'] ?? null,
             ]);
 
             Log::info('تم إنشاء درس جديد', [

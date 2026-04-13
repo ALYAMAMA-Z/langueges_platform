@@ -12,85 +12,69 @@ class PaymentService
     protected PayPalClient $provider;
     protected EnrollmentService $enrollmentService;
 
-    public function __construct(EnrollmentService $enrollmentService)
-    {
-        $this->enrollmentService = $enrollmentService;
-        $this->provider = new PayPalClient;
-        $this->provider->setApiCredentials(config('paypal'));
-        $this->provider->getAccessToken();
-    }
+ public function __construct(EnrollmentService $enrollmentService)
+{
+    $this->enrollmentService = $enrollmentService;
+    $this->provider = new PayPalClient;
+    $this->provider->setApiCredentials(config('paypal'));
+    
+    $token = $this->provider->getAccessToken();
+    \Illuminate\Support\Facades\Log::info('PayPal Access Token', ['token' => $token]);
+}
 
     /**
      * إنشاء طلب دفع جديد
      */
-    public function createPayment(Enrollment $enrollment): array
-    {
-        $course = $enrollment->course;
-        
-        $response = $this->provider->createOrder([
-            "intent" => "CAPTURE",
-            "purchase_units" => [
-                [
-                    "reference_id" => $enrollment->id,
-                    "description" => "Course: " . $course->title_en,
-                    "amount" => [
-                        "currency_code" => config('paypal.currency', 'USD'),
-                        "value" => $course->price,
-                        "breakdown" => [
-                            "item_total" => [
-                                "currency_code" => config('paypal.currency', 'USD'),
-                                "value" => $course->price
-                            ]
-                        ]
-                    ],
-                    "items" => [
-                        [
-                            "name" => $course->title_en,
-                            "description" => $course->description_en,
-                            "quantity" => 1,
-                            "unit_amount" => [
-                                "currency_code" => config('paypal.currency', 'USD'),
-                                "value" => $course->price
-                            ]
-                        ]
-                    ]
+  public function createPayment(Enrollment $enrollment): array
+{
+    $course = $enrollment->course;
+    
+    $response = $this->provider->createOrder([
+        "intent" => "CAPTURE",
+        "purchase_units" => [
+            [
+                "reference_id" => (string) $enrollment->id,
+                "description" => "Course: " . $course->title_en,
+                "amount" => [
+                    "currency_code" => config('paypal.currency', 'USD'),
+                    "value" => (string) $course->price,
                 ]
-            ],
-            "application_context" => [
-                "return_url" => route('paypal.success'),
-                "cancel_url" => route('paypal.cancel'),
-                "brand_name" => "Language Learning Platform",
-                "user_action" => "PAY_NOW",
             ]
-        ]);
+        ],
+        "application_context" => [
+            "return_url" => route('paypal.success'),
+            "cancel_url" => route('paypal.cancel'),
+            "brand_name" => "Language Learning Platform",
+            "user_action" => "PAY_NOW",
+        ]
+    ]);
 
-        Log::info('PayPal order created', [
-            'enrollment_id' => $enrollment->id,
-            'order_id' => $response['id'] ?? null,
-            'status' => $response['status'] ?? null,
-        ]);
+    Log::info('PayPal order created', [
+        'enrollment_id' => $enrollment->id,
+        'order_id' => $response['id'] ?? null,
+        'status' => $response['status'] ?? null,
+        'full_response' => $response
+    ]);
 
-        return $response;
-    }
+    return $response;
+}
 
     /**
      * استكمال الدفع بعد موافقة المستخدم
      */
-    public function capturePayment(string $token, string $payerId): array
-    {
-        $response = $this->provider->capturePaymentOrder($token);
+  public function capturePayment(string $token, string $payerId): array
+{
+    $response = $this->provider->capturePaymentOrder($token);
 
-        Log::info('PayPal payment captured', [
-            'token' => $token,
-            'payer_id' => $payerId,
-            'status' => $response['status'] ?? null,
-        ]);
-
-       
-        // Log::error('PayPal Error Details', $response); 
-        return $response;
-
-    }
+    Log::info('PayPal payment captured', [
+        'token' => $token,
+        'payer_id' => $payerId,
+        'status' => $response['status'] ?? null,
+        'full_response' => $response
+    ]);
+    
+    return $response;
+}
     /**
      * معالجة الدفع الناجح وتفعيل الكورس
      */

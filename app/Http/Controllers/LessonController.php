@@ -44,17 +44,26 @@ class LessonController extends Controller
     /**
      * تخزين درس جديد
      */
-    public function store(LessonStoreRequest $request, int $courseId): RedirectResponse
-    {
-        $validated = $request->validated();
-        $validated['course_id'] = $courseId;
-        
-        $lesson = $this->lessonService->createLesson($validated);
-
-        return redirect()
-            ->route('courses.lessons.index', $courseId)
-            ->with('success', 'تم إنشاء الدرس بنجاح');
+  public function store(LessonStoreRequest $request, int $courseId): RedirectResponse
+{
+    $validated = $request->validated();
+    $validated['course_id'] = $courseId;
+    $validated['is_live'] = $request->has('is_live');
+    
+    // ✅ أضيفي هذه الأسطر
+    if ($request->has('is_live')) {
+        $validated['live_platform'] = $request->live_platform;
+        $validated['live_join_url'] = $request->live_join_url;
+        $validated['live_start_time'] = $request->live_start_time;
+        $validated['live_duration'] = $request->live_duration;
     }
+    
+    $lesson = $this->lessonService->createLesson($validated);
+
+    return redirect()
+        ->route('courses.lessons.index', $courseId)
+        ->with('success', 'تم إنشاء الدرس بنجاح');
+}
 
     /**
      * عرض درس محدد
@@ -81,15 +90,30 @@ class LessonController extends Controller
     /**
      * تحديث درس
      */
-    public function update(LessonUpdateRequest $request, int $courseId, int $lessonId): RedirectResponse
-    {
-        $validated = $request->validated();
-        $this->lessonService->updateLesson($lessonId, $validated);
-
-        return redirect()
-            ->route('courses.lessons.index', $courseId)
-            ->with('success', 'تم تحديث الدرس بنجاح');
+   public function update(LessonUpdateRequest $request, int $courseId, int $lessonId): RedirectResponse
+{
+    $validated = $request->validated();
+    $validated['is_live'] = $request->has('is_live');
+    
+    // ✅ أضيفي هذه الأسطر
+    if ($request->has('is_live')) {
+        $validated['live_platform'] = $request->live_platform;
+        $validated['live_join_url'] = $request->live_join_url;
+        $validated['live_start_time'] = $request->live_start_time;
+        $validated['live_duration'] = $request->live_duration;
+    } else {
+        $validated['live_platform'] = null;
+        $validated['live_join_url'] = null;
+        $validated['live_start_time'] = null;
+        $validated['live_duration'] = null;
     }
+    
+    $this->lessonService->updateLesson($lessonId, $validated);
+
+    return redirect()
+        ->route('courses.lessons.index', $courseId)
+        ->with('success', 'تم تحديث الدرس بنجاح');
+}
 
     /**
      * حذف درس
