@@ -9,6 +9,7 @@ use App\Services\LessonService;
 use App\Services\CourseService;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use App\Services\EnrollmentService;
 
 class LessonController extends Controller
 {
@@ -72,6 +73,7 @@ class LessonController extends Controller
     {
         $course = $this->courseService->getCourseById($courseId);
         $lesson = $this->lessonService->getLessonById($lessonId);
+        $isEnrolled = $this->enrollmentService->isUserEnrolled(auth()->id(), $courseId);
         
         return view('lessons.show', compact('course', 'lesson'));
     }

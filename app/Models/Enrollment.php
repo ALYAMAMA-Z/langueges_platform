@@ -11,6 +11,7 @@ class Enrollment extends Model
     protected $fillable = [
         'user_id', 'course_id', 'status', 'payment_method',
         'paid_at', 'opened_by_admin_at'
+              
     ];
     
     protected $casts = [

@@ -11,7 +11,8 @@ use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\Admin\DailyWordController;
-
+use App\Http\Controllers\Admin\ManualEnrollmentController;
+use App\Http\Controllers\PrivacyController;
 
 
 Route::group([
@@ -100,3 +101,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::resource('daily-words', DailyWordController::class);
 });
 });
+
+
+// Routes للأدمن فقط
+// داخل مجموعة admin routes
+Route::put('/enrollments/{id}/approve', [ManualEnrollmentController::class, 'approve'])->name('admin.enrollments.approve');
+
+
+
+Route::get('/privacy', [PrivacyController::class, 'index'])->name('privacy');

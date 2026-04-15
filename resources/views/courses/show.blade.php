@@ -135,6 +135,58 @@
                 @endif
             </div>
         </div>
+
+        @if(auth()->user() && auth()->user()->isAdmin())
+    <div class="card mt-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-users"></i> إدارة الطلاب المسجلين
+            </h5>
+        </div>
+        <div class="card-body">
+            @if($course->enrollments && $course->enrollments->count() > 0)
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>الطالب</th>
+                            <th>البريد</th>
+                            <th>الحالة</th>
+                            <th>الإجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($course->enrollments as $enrollment)
+                        <tr>
+                            <td>{{ $enrollment->user->name }}</td>
+                            <td>{{ $enrollment->user->email }}</td>
+                            <td>
+                                @if($enrollment->status == 'active')
+                                    <span class="badge bg-success">مفعل</span>
+                                @else
+                                    <span class="badge bg-warning">قيد الانتظار</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($enrollment->status == 'pending')
+                                <form action="{{ route('admin.enrollments.approve', $enrollment->id) }}" method="POST">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        تفعيل
+                                    </button>
+                                </form>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @else
+                <p>لا يوجد طلاب مسجلين</p>
+            @endif
+        </div>
+    </div>
+@endif
     </div>
 </div>
 @endsection

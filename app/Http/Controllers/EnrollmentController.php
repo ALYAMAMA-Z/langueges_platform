@@ -22,7 +22,7 @@ class EnrollmentController extends Controller
     /**
      * عرض صفحة التسجيل في كورس
      */
-    public function create(int $courseId): View
+    public function create(int $courseId): View|RedirectResponse
     {
         $course = $this->courseService->getCourseById($courseId);
         

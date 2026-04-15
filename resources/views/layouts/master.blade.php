@@ -187,11 +187,17 @@
     </main>
 
     <!-- Footer -->
-    <footer>
-        <div class="container text-center">
-            <p class="mb-0">© {{ date('Y') }} {{ __('messages.app_name') }}. {{ __('messages.all_rights_reserved') }}</p>
-        </div>
-    </footer>
+        <footer>
+    <div class="container text-center">
+        <p class="mb-2">
+            <a href="{{ route('privacy') }}" class="text-white text-decoration-none">
+                <i class="fas fa-shield-alt"></i> سياسة الخصوصية
+            </a>
+        </p>
+        <p class="mb-0">© {{ date('Y') }} {{ __('messages.app_name') }}. {{ __('messages.all_rights_reserved') }}</p>
+    </div>
+</footer>
+    
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

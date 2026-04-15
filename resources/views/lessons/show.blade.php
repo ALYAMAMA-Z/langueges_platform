@@ -87,7 +87,10 @@
         }
     </style>
 @endif
-                
+                <!-- للتجربة -->
+<div class="alert alert-info">
+    <strong>حالة التسجيل:</strong> {{ $isEnrolled ? '✅ مسجل في الكورس' : '❌ غير مسجل' }}
+</div>
                 <!-- الفيديو المسجل -->
                 @if($lesson->video_url)
                     <div class="mb-4">
